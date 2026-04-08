@@ -3,7 +3,8 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
-// Пока других роутов нет, но позже добавим products
+const productRoutes = require('./routes/products');
+
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(express.json());
 
 // Подключаем роуты с префиксом /api/auth
 app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
 
 // Заглушка для корня (опционально)
 app.get('/', (req, res) => {
