@@ -4,6 +4,7 @@
       <router-link to="/profile">Профиль</router-link> |
       <router-link to="/auth/login">Вход</router-link> |
       <router-link to="/auth/register">Регистрация</router-link>
+      <router-link to="/catalog">Каталог</router-link> |
     </nav>
     <router-view />
   </div>
