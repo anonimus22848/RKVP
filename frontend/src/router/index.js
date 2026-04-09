@@ -4,6 +4,8 @@ import RegisterView from '@/views/RegisterView.vue';
 import ProfileView from '@/views/ProfileView.vue';
 import { useAuthStore } from '@/stores/auth';
 import CatalogView from '@/views/CatalogView.vue';
+import ProductDetailView from '@/views/ProductDetailView.vue';
+import CartView from '@/views/CartView.vue';
 
 const routes = [
   { path: '/', redirect: '/auth/login' },
@@ -11,6 +13,8 @@ const routes = [
   { path: '/auth/register', component: RegisterView, meta: { guestOnly: true } },
   { path: '/profile', component: ProfileView, meta: { requiresAuth: true } },
   { path: '/catalog', component: CatalogView, meta: { public: true } },
+  { path: '/product/:id', component: ProductDetailView, meta: { public: true } },
+  { path: '/cart', component: CartView, meta: { public: true } },
 ];
 
 const router = createRouter({

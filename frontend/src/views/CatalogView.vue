@@ -5,7 +5,9 @@
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else class="products-grid">
       <div v-for="product in products" :key="product.id" class="product-card">
-        <h3>{{ product.name }}</h3>
+        <router-link :to="`/product/${product.id}`">
+  <h3>{{ product.name }}</h3>
+</router-link>
         <p class="brand">{{ product.brand }}</p>
         <p class="price">{{ product.price }} ₽</p>
         <p class="description">{{ product.description?.slice(0, 80) }}...</p>
@@ -13,6 +15,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup>
 import { ref, onMounted } from 'vue';
