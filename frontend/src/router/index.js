@@ -6,6 +6,7 @@ import { useAuthStore } from '@/stores/auth';
 import CatalogView from '@/views/CatalogView.vue';
 import ProductDetailView from '@/views/ProductDetailView.vue';
 import CartView from '@/views/CartView.vue';
+import AdminProductsView from '@/views/AdminProductsView.vue';
 
 const routes = [
   { path: '/', redirect: '/auth/login' },
@@ -15,6 +16,7 @@ const routes = [
   { path: '/catalog', component: CatalogView, meta: { public: true } },
   { path: '/product/:id', component: ProductDetailView, meta: { public: true } },
   { path: '/cart', component: CartView, meta: { public: true } },
+  { path: '/admin/products', component: AdminProductsView, meta: { requiresAuth: true } },
 ];
 
 const router = createRouter({

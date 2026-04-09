@@ -6,6 +6,7 @@
       <router-link to="/auth/login">Вход</router-link> |
       <router-link to="/auth/register">Регистрация</router-link> |
       <router-link to="/cart">Корзина ({{ cartTotalCount }})</router-link> |
+      <router-link to="/admin/products">Управление товарами</router-link> |
     </nav>
     <router-view />
   </div>
