@@ -2,15 +2,22 @@
   <div class="catalog">
     <h1>Каталог периферии</h1>
 
-    <!-- Поиск -->
-    <div class="search-bar">
+    <!-- Поиск и фильтры -->
+    <div class="filters">
       <input
         v-model="searchQuery"
         type="text"
         placeholder="Поиск товаров..."
         @keyup.enter="fetchProducts"
       />
+      <select v-model="selectedBrand" @change="fetchProducts">
+        <option value="">Все бренды</option>
+        <option v-for="brand in brands" :key="brand" :value="brand">{{ brand }}</option>
+      </select>
+      <input v-model="minPrice" type="number" placeholder="Цена от" min="0" />
+      <input v-model="maxPrice" type="number" placeholder="Цена до" min="0" />
       <button @click="fetchProducts">Найти</button>
+      <button @click="resetFilters" class="reset-btn">Сбросить</button>
     </div>
 
     <div v-if="loading" class="loading">Загрузка товаров...</div>
@@ -41,13 +48,22 @@ const products = ref([]);
 const loading = ref(true);
 const error = ref('');
 const searchQuery = ref('');
+const selectedBrand = ref('');
+const minPrice = ref('');
+const maxPrice = ref('');
+const brands = ref([]);
 const favoritesStore = useFavoritesStore();
 
 async function fetchProducts() {
   loading.value = true;
   error.value = '';
   try {
-    const params = searchQuery.value ? { search: searchQuery.value } : {};
+    const params = {};
+    if (searchQuery.value) params.search = searchQuery.value;
+    if (selectedBrand.value) params.brand = selectedBrand.value;
+    if (minPrice.value) params.minPrice = minPrice.value;
+    if (maxPrice.value) params.maxPrice = maxPrice.value;
+
     const response = await api.get('/products', { params });
     products.value = response.data;
   } catch (err) {
@@ -58,7 +74,28 @@ async function fetchProducts() {
   }
 }
 
-onMounted(fetchProducts);
+async function fetchBrands() {
+  try {
+    const response = await api.get('/products');
+    const all = response.data;
+    brands.value = [...new Set(all.map(p => p.brand).filter(Boolean))].sort();
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+function resetFilters() {
+  searchQuery.value = '';
+  selectedBrand.value = '';
+  minPrice.value = '';
+  maxPrice.value = '';
+  fetchProducts();
+}
+
+onMounted(async () => {
+  await fetchBrands();
+  await fetchProducts();
+});
 
 async function toggleFavorite(product) {
   if (favoritesStore.isFavorite(product.id)) {
@@ -75,19 +112,22 @@ async function toggleFavorite(product) {
   margin: 0 auto;
   padding: 20px;
 }
-.search-bar {
+.filters {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 24px;
 }
-.search-bar input {
-  flex: 1;
+.filters input,
+.filters select {
   padding: 10px 14px;
   border: 1px solid #ddd;
   border-radius: 6px;
   font-size: 1rem;
+  flex: 1;
+  min-width: 120px;
 }
-.search-bar button {
+.filters button {
   padding: 10px 20px;
   background: #42b983;
   color: white;
@@ -96,9 +136,9 @@ async function toggleFavorite(product) {
   cursor: pointer;
   font-size: 1rem;
 }
-.search-bar button:hover {
-  background: #369870;
-}
+.filters button:hover { background: #369870; }
+.reset-btn { background: #888 !important; }
+.reset-btn:hover { background: #666 !important; }
 .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -119,10 +159,7 @@ async function toggleFavorite(product) {
   font-weight: bold;
   color: #42b983;
 }
-.brand {
-  color: #666;
-  font-size: 0.9rem;
-}
+.brand { color: #666; font-size: 0.9rem; }
 .loading, .error, .empty {
   text-align: center;
   margin-top: 50px;
