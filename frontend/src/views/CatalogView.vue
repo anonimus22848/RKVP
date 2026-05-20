@@ -24,7 +24,7 @@
   <div class="spinner"></div>
   <p>Загрузка товаров...</p>
 </div>
-    <div v-else-if="error" class="error">{{ error }}</div>
+    <ErrorMessage :message="error" @dismiss="error = ''" />
     <div v-else-if="products.length === 0" class="empty">Товары не найдены</div>
     <div v-else class="products-grid">
       <div v-for="product in products" :key="product.id" class="product-card">
@@ -46,6 +46,7 @@
 import { ref, onMounted } from 'vue';
 import api from '@/api';
 import { useFavoritesStore } from '@/stores/favorites';
+import ErrorMessage from '@/components/ErrorMessage.vue';
 
 const products = ref([]);
 const loading = ref(true);
