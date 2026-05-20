@@ -1,22 +1,26 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 import LoginView from '@/views/LoginView.vue';
 import RegisterView from '@/views/RegisterView.vue';
 import ProfileView from '@/views/ProfileView.vue';
-import { useAuthStore } from '@/stores/auth';
 import CatalogView from '@/views/CatalogView.vue';
 import ProductDetailView from '@/views/ProductDetailView.vue';
 import CartView from '@/views/CartView.vue';
 import AdminProductsView from '@/views/AdminProductsView.vue';
+import FavoritesView from '@/views/FavoritesView.vue';
+import AdminUsersView from '@/views/AdminUsersView.vue';
 
 const routes = [
-  { path: '/', redirect: '/auth/login' },
+  { path: '/', redirect: '/catalog' },
   { path: '/auth/login', component: LoginView, meta: { guestOnly: true } },
   { path: '/auth/register', component: RegisterView, meta: { guestOnly: true } },
+  { path: '/catalog', component: CatalogView },
+  { path: '/product/:id', component: ProductDetailView },
   { path: '/profile', component: ProfileView, meta: { requiresAuth: true } },
-  { path: '/catalog', component: CatalogView, meta: { public: true } },
-  { path: '/product/:id', component: ProductDetailView, meta: { public: true } },
-  { path: '/cart', component: CartView, meta: { public: true } },
-  { path: '/admin/products', component: AdminProductsView, meta: { requiresAuth: true } },
+  { path: '/cart', component: CartView, meta: { requiresAuth: true } },
+  { path: '/favorites', component: FavoritesView, meta: { requiresAuth: true } },
+  { path: '/admin/products', component: AdminProductsView, meta: { requiresAuth: true, adminOnly: true } },
+  { path: '/admin/users', component: AdminUsersView, meta: { requiresAuth: true, adminOnly: true } },
 ];
 
 const router = createRouter({
@@ -28,6 +32,8 @@ router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next('/auth/login');
+  } else if (to.meta.adminOnly && authStore.user?.role !== 'admin') {
+    next('/profile');
   } else if (to.meta.guestOnly && authStore.isAuthenticated) {
     next('/profile');
   } else {

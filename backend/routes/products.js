@@ -5,6 +5,18 @@ const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
+// GET /api/products – поиск + фильтрация по бренду и цене
+router.get('/', async (req, res) => {
+  try {
+    const { search, brand, minPrice, maxPrice, sort } = req.query;
+    const products = await Product.filter({ search, brand, minPrice, maxPrice, sort });
+    res.json(products);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch products' });
+  }
+});
+
 // GET /api/products – публичный список товаров
 router.get('/', async (req, res) => {
   try {

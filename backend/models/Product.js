@@ -2,12 +2,45 @@
 const pool = require('../db/pool');
 
 class Product {
+
   // Получить все товары (сортировка по ID)
-  static async findAll() {
-    const result = await pool.query('SELECT * FROM products ORDER BY id');
-    return result.rows;
+  // Универсальный метод: получить все / искать / фильтровать
+static async filter({ search, brand, minPrice, maxPrice, sort } = {}) {
+  const conditions = [];
+  const values = [];
+
+  if (search) {
+    values.push(`%${search}%`);
+    conditions.push(`(name ILIKE $${values.length} OR brand ILIKE $${values.length})`);
   }
-  
+  if (brand) {
+    values.push(brand);
+    conditions.push(`brand = $${values.length}`);
+  }
+  if (minPrice) {
+    values.push(Number(minPrice));
+    conditions.push(`price >= $${values.length}`);
+  }
+  if (maxPrice) {
+    values.push(Number(maxPrice));
+    conditions.push(`price <= $${values.length}`);
+  }
+
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+  const sortMap = {
+  price_asc: 'price ASC',
+  price_desc: 'price DESC',
+  name_asc: 'name ASC',
+  rating_desc: 'rating DESC',
+};
+const orderBy = sortMap[sort] || 'id ASC';
+const result = await pool.query(
+  `SELECT * FROM products ${where} ORDER BY ${orderBy}`,
+  values
+);
+  return result.rows;
+}
+
   // Поиск товаров по названию или бренду
 static async search(query) {
   const result = await pool.query(

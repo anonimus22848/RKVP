@@ -13,6 +13,13 @@
       <input v-model="maxPrice" type="number" placeholder="Цена до" min="0" />
       <button @click="fetchProducts">Найти</button>
       <button @click="resetFilters" class="reset-btn">Сбросить</button>
+      <select v-model="sortBy" @change="fetchProducts">
+  <option value="">По умолчанию</option>
+  <option value="price_asc">Цена ↑</option>
+  <option value="price_desc">Цена ↓</option>
+  <option value="name_asc">Название А-Я</option>
+  <option value="rating_desc">Рейтинг ↓</option>
+</select>
     </div>
 
     <!-- Ошибка — отдельно, не в цепочке v-if -->
@@ -46,6 +53,7 @@ import api from '@/api';
 import { useFavoritesStore } from '@/stores/favorites';
 import ErrorMessage from '@/components/ErrorMessage.vue';
 
+const sortBy = ref('');
 const products = ref([]);
 const loading = ref(true);
 const error = ref('');
@@ -61,6 +69,7 @@ async function fetchProducts() {
   error.value = '';
   try {
     const params = {};
+    if (sortBy.value) params.sort = sortBy.value;
     if (searchQuery.value) params.search = searchQuery.value;
     if (selectedBrand.value) params.brand = selectedBrand.value;
     if (minPrice.value) params.minPrice = minPrice.value;
@@ -87,6 +96,7 @@ async function fetchBrands() {
 }
 
 function resetFilters() {
+  sortBy.value = '';
   searchQuery.value = '';
   selectedBrand.value = '';
   minPrice.value = '';
