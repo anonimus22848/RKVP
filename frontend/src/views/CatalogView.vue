@@ -20,7 +20,10 @@
       <button @click="resetFilters" class="reset-btn">Сбросить</button>
     </div>
 
-    <div v-if="loading" class="loading">Загрузка товаров...</div>
+    <div v-if="loading" class="loading">
+  <div class="spinner"></div>
+  <p>Загрузка товаров...</p>
+</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else-if="products.length === 0" class="empty">Товары не найдены</div>
     <div v-else class="products-grid">
@@ -164,5 +167,24 @@ async function toggleFavorite(product) {
   text-align: center;
   margin-top: 50px;
   color: #666;
+}
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 60px;
+  gap: 16px;
+  color: #666;
+}
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 5px solid #e0e0e0;
+  border-top-color: #42b983;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 </style>
