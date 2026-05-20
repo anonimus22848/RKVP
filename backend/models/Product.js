@@ -7,6 +7,17 @@ class Product {
     const result = await pool.query('SELECT * FROM products ORDER BY id');
     return result.rows;
   }
+  
+  // Поиск товаров по названию или бренду
+static async search(query) {
+  const result = await pool.query(
+    `SELECT * FROM products
+     WHERE name ILIKE $1 OR brand ILIKE $1
+     ORDER BY id`,
+    [`%${query}%`]
+  );
+  return result.rows;
+}
 
   // Получить один товар по ID
   static async findById(id) {
