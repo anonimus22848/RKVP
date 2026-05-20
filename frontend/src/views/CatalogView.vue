@@ -4,12 +4,7 @@
 
     <!-- Поиск и фильтры -->
     <div class="filters">
-      <input
-        v-model="searchQuery"
-        type="text"
-        placeholder="Поиск товаров..."
-        @keyup.enter="fetchProducts"
-      />
+      <input v-model="searchQuery" type="text" placeholder="Поиск товаров..." @keyup.enter="fetchProducts" />
       <select v-model="selectedBrand" @change="fetchProducts">
         <option value="">Все бренды</option>
         <option v-for="brand in brands" :key="brand" :value="brand">{{ brand }}</option>
@@ -20,11 +15,14 @@
       <button @click="resetFilters" class="reset-btn">Сбросить</button>
     </div>
 
-    <div v-if="loading" class="loading">
-  <div class="spinner"></div>
-  <p>Загрузка товаров...</p>
-</div>
+    <!-- Ошибка — отдельно, не в цепочке v-if -->
     <ErrorMessage :message="error" @dismiss="error = ''" />
+
+    <!-- Состояния загрузки/пусто/данные — своя цепочка -->
+    <div v-if="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Загрузка товаров...</p>
+    </div>
     <div v-else-if="products.length === 0" class="empty">Товары не найдены</div>
     <div v-else class="products-grid">
       <div v-for="product in products" :key="product.id" class="product-card">
@@ -187,5 +185,21 @@ async function toggleFavorite(product) {
 }
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+  .filters {
+    flex-direction: column;
+  }
+  .filters input,
+  .filters select,
+  .filters button {
+    width: 100%;
+    min-width: unset;
+  }
+  .products-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
