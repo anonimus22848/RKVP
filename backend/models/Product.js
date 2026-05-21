@@ -1,56 +1,50 @@
-
 const pool = require('../db/pool');
 
 class Product {
-
-  // Получить все товары (сортировка по ID)
-  // Универсальный метод: получить все / искать / фильтровать
-static async filter({ search, brand, minPrice, maxPrice, sort } = {}) {
-  const conditions = [];
-  const values = [];
-
-  if (search) {
-    values.push(`%${search}%`);
-    conditions.push(`(name ILIKE $${values.length} OR brand ILIKE $${values.length})`);
-  }
-  if (brand) {
-    values.push(brand);
-    conditions.push(`brand = $${values.length}`);
-  }
-  if (minPrice) {
-    values.push(Number(minPrice));
-    conditions.push(`price >= $${values.length}`);
-  }
-  if (maxPrice) {
-    values.push(Number(maxPrice));
-    conditions.push(`price <= $${values.length}`);
+  // Получить все товары
+  static async findAll() {
+    const result = await pool.query('SELECT * FROM products ORDER BY id');
+    return result.rows;
   }
 
-  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
-  const sortMap = {
-  price_asc: 'price ASC',
-  price_desc: 'price DESC',
-  name_asc: 'name ASC',
-  rating_desc: 'rating DESC',
-};
-const orderBy = sortMap[sort] || 'id ASC';
-const result = await pool.query(
-  `SELECT * FROM products ${where} ORDER BY ${orderBy}`,
-  values
-);
-  return result.rows;
-}
+  // Универсальный метод: поиск + фильтрация + сортировка
+  static async filter({ search, brand, minPrice, maxPrice, sort } = {}) {
+    const conditions = [];
+    const values = [];
 
-  // Поиск товаров по названию или бренду
-static async search(query) {
-  const result = await pool.query(
-    `SELECT * FROM products
-     WHERE name ILIKE $1 OR brand ILIKE $1
-     ORDER BY id`,
-    [`%${query}%`]
-  );
-  return result.rows;
-}
+    if (search) {
+      values.push(`%${search}%`);
+      conditions.push(`(name ILIKE $${values.length} OR brand ILIKE $${values.length})`);
+    }
+    if (brand) {
+      values.push(brand);
+      conditions.push(`brand = $${values.length}`);
+    }
+    if (minPrice) {
+      values.push(Number(minPrice));
+      conditions.push(`price >= $${values.length}`);
+    }
+    if (maxPrice) {
+      values.push(Number(maxPrice));
+      conditions.push(`price <= $${values.length}`);
+    }
+
+    const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+
+    const sortMap = {
+      price_asc: 'price ASC',
+      price_desc: 'price DESC',
+      name_asc: 'name ASC',
+      rating_desc: 'rating DESC',
+    };
+    const orderBy = sortMap[sort] || 'id ASC';
+
+    const result = await pool.query(
+      `SELECT * FROM products ${where} ORDER BY ${orderBy}`,
+      values
+    );
+    return result.rows;
+  }
 
   // Получить один товар по ID
   static async findById(id) {
@@ -59,27 +53,28 @@ static async search(query) {
   }
 
   // Создать новый товар
-  static async create({ name, description, price, brand }) {
+  static async create({ name, description, price, brand, image_url }) {
     const result = await pool.query(
-      `INSERT INTO products (name, description, price, brand)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO products (name, description, price, brand, image_url)
+       VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
-      [name, description, price, brand]
+      [name, description, price, brand, image_url]
     );
     return result.rows[0];
   }
 
-  // Обновить товар (частичное обновление: если поле не указано, оставляем старое)
-  static async update(id, { name, description, price, brand }) {
+  // Обновить товар
+  static async update(id, { name, description, price, brand, image_url }) {
     const result = await pool.query(
       `UPDATE products
        SET name = COALESCE($1, name),
            description = COALESCE($2, description),
            price = COALESCE($3, price),
-           brand = COALESCE($4, brand)
-       WHERE id = $5
+           brand = COALESCE($4, brand),
+           image_url = COALESCE($5, image_url)
+       WHERE id = $6
        RETURNING *`,
-      [name, description, price, brand, id]
+      [name, description, price, brand, image_url, id]
     );
     return result.rows[0];
   }
