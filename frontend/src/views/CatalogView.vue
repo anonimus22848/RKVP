@@ -33,6 +33,12 @@
     <div v-else-if="products.length === 0" class="empty">Товары не найдены</div>
     <div v-else class="products-grid">
       <div v-for="product in products" :key="product.id" class="product-card">
+      <img
+  v-if="product.image_url"
+  :src="product.image_url"
+  class="product-img"
+  alt=""
+/>
         <router-link :to="`/product/${product.id}`">
           <h3>{{ product.name }}</h3>
         </router-link>
@@ -211,5 +217,24 @@ async function toggleFavorite(product) {
   .products-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.product-img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+.product-img-placeholder {
+  width: 100%;
+  height: 160px;
+  background: #f5f5f5;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
 }
 </style>
